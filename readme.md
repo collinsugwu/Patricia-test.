@@ -131,7 +131,7 @@ localhost:8000/api/documentation
 ```
 
 ## Explanations
-  The Project uses Jwt(Json web token) for authentication but goes a futher in using RSA encryption for encrypting the encoded the base64 jwt token and its payload with a private key and decrypting the token with a public key. 
+  The "p"roject uses J"WT" (Json "W"eb "T"oken) for authentication but goes a "step further" in using RSA encryption for encrypting "and decrypting the token".
 
 <!-- ROADMAP -->
 ## Roadmap
