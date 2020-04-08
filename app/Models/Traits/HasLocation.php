@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * Based on comments from
  * https://stackoverflow.com/questions/2234204/latitude-longitude-find-nearest-latitude-longitude-complex-sql-or-complex-calc
- * Trait HasLocation
+ * Traits HasLocation
  * @package App\Models\Traits
  */
 trait HasLocation

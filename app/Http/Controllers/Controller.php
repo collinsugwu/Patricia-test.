@@ -14,12 +14,11 @@ class Controller extends BaseController
      *   title="Template API",
      *   version="1.0",
      *   @OA\Contact(
-     *     email="dev@invogeservices.com",
+     *     email="collinsuchinaka@gmail.com",
      *     name="Development Team"
      *   )
      * )
      *
-     * @OA\Server(url="http://localhost:9400",description="Local PMAT Server")
      * @OA\Server(url="https://api.template.com",description="Live OpenApi Server")
      *
      * @OA\Tag(name="Auth",description="Everything about authentication")

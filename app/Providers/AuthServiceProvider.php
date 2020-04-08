@@ -2,12 +2,15 @@
 
 namespace App\Providers;
 
+use App\Http\Traits\ManagesToken;
+use App\Models\Auth\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
+    use ManagesToken;
+
     /**
      * Register any application services.
      *
@@ -36,7 +39,12 @@ class AuthServiceProvider extends ServiceProvider
             $header = $request->header('Authorization');
             if (!empty($header) && preg_match('/Bearer\s(\S+)/', $header, $matches)) {
                 $token = $matches[1];
-                return \App\Models\Auth\User::where('api_token', $token)->first();
+
+                $tokenObject = $this->checkToken($token);
+                if ($tokenObject) {
+                    $user_id = $tokenObject->getClaim('sub');
+                    return User::find($user_id);
+                }
             }
 
             return null;

@@ -17,16 +17,17 @@ class AuthTest extends TestCase
         $faker = Factory::create();
         $data['first_name'] = $faker->firstName;
         $data['last_name'] = $faker->lastName;
-        $data['other_names'] = $faker->firstName;
-        $data['username'] = $faker->userName;
         $data['email'] = $faker->email;
+        $data['username'] = $faker->userName;
         $data['phone'] = $faker->phoneNumber;
         $data['password'] = $password = $faker->password;
         $data['password_confirmation'] = $password;
-        $data['terms'] = 'on';
 
         $this->sendPost('register', $data);
         $this->assertSuccessResponse();
+        $this->assertResponseStructure([
+            'data' => ['token']
+        ]);
     }
 
     /**
@@ -48,20 +49,7 @@ class AuthTest extends TestCase
         $data['password'] = $password;
         $this->sendPost('login', $data);
         $this->assertSuccessResponse();
-        $this->assertResponseStructure(['data' => ['token', 'user']]);
+        $this->assertResponseStructure(['data' => ['token']]);
     }
 
-    public function testLogout()
-    {
-        /** @var User $user */
-        $user = \factory(User::class)->create();
-        $this->loginAs($user);
-
-        $this->sendPost('/logout');
-        $this->assertSuccessResponse();
-
-        //Assert token was cleared
-        $user->refresh();
-        $this->assertNull($user->api_token);
-    }
 }

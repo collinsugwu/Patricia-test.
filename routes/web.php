@@ -16,12 +16,6 @@
 
 
 //<--For testing purposes
-$router->get('/mail-preview', function () {
-    return (new \App\Notifications\ForgotPassword(2313232))
-        ->toMail(factory(\App\Models\Auth\User::class)->make());
-});
-//<--For testing purposes
-
 
 $router->get('/', 'ExampleController@ping');
 
@@ -35,17 +29,5 @@ $router->group(['namespace' => 'Auth'], function () use ($router) {
 });
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
-
-    $router->post('/logout', 'Auth\AuthController@logout');
-
-    $router->group(['namespace' => 'Account'], function () use ($router) {
-
-        $router->group(['prefix' => 'user'], function () use ($router) {
-            $router->get('/', 'UserController@fetchUser');
-            $router->patch('/', 'UserController@updateUser');
-            $router->patch('/password', 'UserController@updatePassword');
-            $router->delete('/', 'UserController@deleteUser');
-        });
-
-    });
+    $router->post('posts', 'PostController@create');
 });

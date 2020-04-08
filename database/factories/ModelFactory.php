@@ -17,10 +17,19 @@ $factory->define(App\Models\Auth\User::class, function (Faker\Generator $faker) 
     return [
         'first_name' => $faker->firstName,
         'last_name' => $faker->lastName,
+        'other_names' => $faker->firstName,
         'email' => $faker->email,
         'phone' => $faker->phoneNumber,
-        'password' => \Illuminate\Support\Facades\Hash::make($password ?: 'secret'),
-        'api_token' => md5(uniqid()),
-        'username' => $faker->userName
+        'username' => $faker->userName,
+        'password' => \Illuminate\Support\Facades\Hash::make($password ?: 'secret')
     ];
 });
+
+$factory->define(\App\Models\Post::class, function (\Faker\Generator $faker) {
+    return [
+        'title' => $faker->jobTitle,
+        'description' => $faker->paragraph,
+        'user_id' => null
+    ];
+});
+

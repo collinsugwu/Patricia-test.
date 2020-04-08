@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Traits\ManagesToken;
 use App\Models\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    use ManagesToken;
 
     /**
      * @OA\Post(
@@ -63,22 +65,22 @@ class AuthController extends Controller
             'email_or_username' => 'required|string|max:255',
             'password' => 'required|string',
         ]);
+
         $email_or_username = $request->input('email_or_username');
         $user = User::where(function ($builder) use ($email_or_username) {
-            $builder->where('username', $email_or_username)->orWhere('email', $email_or_username);
+            $builder->where('username', $email_or_username)
+                ->orWhere('email', $email_or_username);
         })->first();
+
         abort_unless(is_object($user), Response::HTTP_UNAUTHORIZED, 'Unauthorized');
+
         $verify = Hash::check($request->password, $user->password);
         abort_unless($verify, Response::HTTP_UNAUTHORIZED, 'Unauthorized');
-        /** @var User $user */
-        $user->api_token = $this->createToken($user->id);
-        $user->save();
 
+        $token = $this->createTokenFor($user->id);
         return $this->success([
-            'token' => $user->api_token,
-            'user' => $user,
-//            'nearby' => $user->role,
-//            'rewards' => $user->role,
+            'token' => $token,
+            'user' => $user
         ]);
     }
 
@@ -100,13 +102,6 @@ class AuthController extends Controller
      *         name="last_name",
      *         in="query",
      *         description="Last Name of the User",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="other_names",
-     *         in="query",
-     *         description="Other Name of User",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
@@ -145,27 +140,6 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
-     *     @OA\Parameter(
-     *         name="gender",
-     *         in="query",
-     *         description="Gender of the User",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="address",
-     *         in="query",
-     *         description="Address of the User",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *      @OA\Parameter(
-     *         name="terms",
-     *         in="query",
-     *         description="Terms and condition ",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\Response(
      *         response="200",
      *         description="Creates a new user, returns a success response with an API token",
@@ -184,76 +158,26 @@ class AuthController extends Controller
      */
     public function registerUser(Request $request)
     {
-        $userNameRegex = usernameRegex();
         $this->validate($request, [
             'first_name' => ['required', 'string', 'min:3'],
             'last_name' => ['required', 'string', 'min:3'],
-            'other_names' => ['string', 'min:1'],
             'phone' => ['required', 'string', 'min:9'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'username' => ['required', 'string', 'max:255', "regex:$userNameRegex", 'unique:users'],
+            'username' => ['required', 'string', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'terms' => ['accepted'],
         ]);
 
         return DB::transaction(function () use ($request) {
             // Create User
             $user = new User($request->all());
             $user->password = Hash::make($request->password);
-            $user->api_token = $this->createToken();
             $user->save();
 
+            $token = $this->createTokenFor($user->id);
             return $this->success([
-                'token' => $user->api_token,
-                'user' => $user,
-//            'nearby' => $user->role,
-//            'rewards' => $user->role,
+                'token' => $token
             ]);
         });
     }
-
-    /**
-     * @param int|null $user_id
-     * @return string
-     * @throws \Exception
-     */
-    private function createToken($user_id = null)
-    {
-        return sha1($user_id . bin2hex(random_bytes(16)));
-    }
-
-
-    /**
-     * @OA\Post(
-     *     path="/logout",
-     *     operationId="/logout",
-     *     summary="Destroys user token",
-     *     tags={"Auth"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Returns a success response and an API token",
-     *         @OA\JsonContent()
-     *     ),
-     *     @OA\Parameter(
-     *         name="Authorization",
-     *         in="header",
-     *         description="Api token, prefixed with 'Bearer' and a space. e.g Bearer 77e1c83b-7bb0-437b-bc50-a7a58e5660ac",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     * )
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-
-    public function logout(Request $request)
-    {
-        /** @var User $user */
-        $user = $request->user();
-        $user->api_token = null;
-        $user->save();
-        return $this->success();
-    }
-
 
 }

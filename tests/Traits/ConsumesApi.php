@@ -2,11 +2,14 @@
 
 namespace Tests\Traits;
 
+use App\Http\Traits\ManagesToken;
 use App\Models\Auth\User;
 use Illuminate\Http\Response;
 
 trait ConsumesApi
 {
+    use ManagesToken;
+
     private $__data;
     private $__user;
 
@@ -91,7 +94,7 @@ trait ConsumesApi
         $this->__data = null;
         //Set authorization token
         if (is_object($this->__user)) {
-            $headers['Authorization'] = 'Bearer ' . $this->__user->api_token;
+            $headers['Authorization'] = 'Bearer ' . $this->createTokenFor($this->__user->id);
         }
 
         switch ($method) {
@@ -111,30 +114,6 @@ trait ConsumesApi
                 $response = $this->get($uri, $headers);
 
         }
-
-        return $response;
-    }
-
-    /**
-     * @param $method
-     * @param $uri
-     * @param array $parameters
-     * @param array $cookies
-     * @param array $files
-     * @param array $server
-     * @param mixed $content
-     * @return Response
-     */
-    protected function request($method, $uri, $parameters = [], $files = [], $cookies = [], $server = [], $content = null)
-    {
-        //Clear cached response
-        $this->__data = null;
-        //Set authorization token
-        if (is_object($this->__user)) {
-            $server['HTTP_Authorization'] = 'Bearer ' . $this->__user->api_token;
-        }
-
-        $response = $this->call($method, $uri, $parameters, $cookies, $files, $server, $content);
 
         return $response;
     }
