@@ -96,6 +96,18 @@ composer install
 ```sh
 php -S localhost:8000 -t public
 ```
+5. Publish the endpoints documentation with [DarkaOnline](https://github.com/DarkaOnLine/SwaggerLume)
+
+```sh
+  php artisan swagger-lume:publish-config
+
+  php artisan swagger-lume:publish-views 
+
+  php artisan swagger-lume:publish
+
+  php artisan swagger-lume:generate
+  
+```
 
 
 <!-- USAGE EXAMPLES -->
